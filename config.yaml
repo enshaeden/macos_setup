@@ -1,0 +1,55 @@
+# macOS Setup Configuration
+
+core:
+  repo_name: "mac-setup"
+  state_file: "~/.mac-setup-state.json"
+  log_dir: "~/Library/Logs/mac-setup"
+  brew_prefix: "/opt/homebrew"
+
+features:
+  homebrew: true
+  macos_defaults: true
+  zsh_setup: true
+  python_env: true
+  file_cleanup: true
+  net_monitor: true
+  diag_tools: true
+
+brew_force_install:
+  - "pyenv"
+  - "node"
+  - "coreutils"
+
+app_urls:
+  vscode: "https://update.code.visualstudio.com/latest/darwin-arm64/stable"
+  github_desktop: "https://central.github.com/deployments/desktop/desktop/latest/darwin-arm64"
+
+cleanup:
+  folders:
+    - "~/Desktop"
+    - "~/Downloads"
+  routing:
+    installers:
+      extensions: [".dmg", ".pkg", ".zip"]
+      dest: "Installers"
+    documents:
+      extensions: [".pdf", ".docx", ".xlsx", ".pptx", ".txt"]
+      dest: "Documents"
+    media:
+      extensions: [".jpg", ".jpeg", ".png", ".mov", ".mp4"]
+      dest: "Media"
+  screenshots:
+    enabled: true
+    dest: "~/Pictures/Screenshots"
+
+monitoring:
+  target: "1.1.1.1"
+  interval_seconds: 300
+  thresholds:
+    packet_loss_percent: 10
+    latency_ms: 150
+  alerts_enabled: true
+
+ui_tweaks:
+  dock_speed: true
+  finder_animations: false
