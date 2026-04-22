@@ -1,13 +1,13 @@
 # macOS Setup Tool
 
-A professional, modular setup suite for macOS (Apple Silicon). This tool provisions your machine with Homebrew, Python, Zsh, and personal automation scripts while providing ongoing maintenance and monitoring.
+A modular setup suite for macOS (Apple Silicon). This tool provisions your machine with Homebrew, Python, Zsh, and personal automation scripts while providing ongoing maintenance and monitoring.
 
 ## Fast Installation (New Mac)
 
 Open **Terminal** and run the following command:
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/youruser/yourrepo/main/bootstrap.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/enshaeden/macos_setup/main/bootstrap.sh)"
 ```
 
 *Note: Update the `REPO_URL` in `bootstrap.sh` before running.*

@@ -1,12 +1,12 @@
 #!/bin/bash
 # Bootstrap script for macOS setup
 # This script is designed to be run as a one-liner:
-# /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/youruser/yourrepo/main/bootstrap.sh)"
+# /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/enshaeden/macos_setup/main/bootstrap.sh)"
 
 set -euo pipefail
 
 # --- Configuration ---
-REPO_URL="https://github.com/youruser/yourrepo.git" # TODO: Update with your actual repository URL
+REPO_URL="https://github.com/enshaeden/macos_setup"
 TARGET_DIR="${HOME}/.mac-setup"
 
 # --- Setup ---
