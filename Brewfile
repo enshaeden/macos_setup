@@ -9,6 +9,7 @@ brew "jq"
 brew "yq"
 
 # GUI Apps
+cask_args appdir: "~/Applications"
 cask "visual-studio-code"
 cask "github"
 

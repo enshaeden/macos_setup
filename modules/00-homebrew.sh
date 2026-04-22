@@ -19,6 +19,7 @@ log_info "Bootstrapping JSON/YAML tools (jq, yq)..."
 "${BREW_BIN}" install jq yq
 
 log_info "Installing dependencies from Brewfile..."
+mkdir -p "${HOME}/Applications"
 # Filtering Brewfile logic
 local temp_brewfile=$(mktemp)
 local force_install=($(yq -r '.brew_force_install[]' "${SCRIPT_DIR}/config.yaml"))
