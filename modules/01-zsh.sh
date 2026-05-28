@@ -28,3 +28,6 @@ cp "${SCRIPT_DIR}/dotfiles/.zshrc" "${HOME}/.zshrc"
 
 mark_completed "zsh_setup"
 log_success "Zsh module complete."
+
+log_info "Sourcing updated .zshrc..."
+source "${HOME}/.zshrc" 2>/dev/null || true
