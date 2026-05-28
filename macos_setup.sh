@@ -30,7 +30,7 @@ main() {
   source "${SCRIPT_DIR}/modules/00-homebrew.sh"
 
   # Load and run modules
-  local modules=("01-zsh.sh" "02-macos-defaults.sh" "03-python.sh" "04-apps.sh" "05-security.sh" "06-diag-tools.sh")
+  local modules=("05-security.sh" "01-zsh.sh" "02-macos-defaults.sh" "03-python.sh" "04-apps.sh" "06-diag-tools.sh")
   local current_module_path=""
   local current_feature_name=""
   local is_enabled=""
