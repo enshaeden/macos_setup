@@ -14,7 +14,7 @@ sudo mkdir -p /usr/local/bin
 sudo cp "${SCRIPT_DIR}/scripts/file_cleanup.py" "${CLEANUP_SCRIPT_DEST}"
 sudo chmod +x "${CLEANUP_SCRIPT_DEST}"
 
-python_bin="$(pyenv which python3)"
+uv_bin="${HOME}/.local/bin/uv"
 
 # Cleanup Agent
 cat > "${CLEANUP_PLIST}" <<EOF
@@ -26,7 +26,8 @@ cat > "${CLEANUP_PLIST}" <<EOF
   <string>net.enshaeden.file_cleanup</string>
   <key>ProgramArguments</key>
   <array>
-    <string>${python_bin}</string>
+    <string>${uv_bin}</string>
+    <string>run</string>
     <string>${CLEANUP_SCRIPT_DEST}</string>
   </array>
   <key>RunAtLoad</key>
@@ -51,7 +52,8 @@ cat > "${MONITOR_PLIST}" <<EOF
   <string>net.enshaeden.net_monitor</string>
   <key>ProgramArguments</key>
   <array>
-    <string>${python_bin}</string>
+    <string>${uv_bin}</string>
+    <string>run</string>
     <string>${SCRIPT_DIR}/scripts/net_monitor.py</string>
   </array>
   <key>RunAtLoad</key>

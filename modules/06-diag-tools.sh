@@ -14,7 +14,7 @@ cp "${SCRIPT_DIR}/scripts/network_troubleshooter.py" "${DIAG_TOOLS_DIR}/Network/
 
 cat > "${DIAG_TOOLS_DIR}/run_troubleshooter.sh" <<EOF
 #!/bin/bash
-python3 "${DIAG_TOOLS_DIR}/Network/network_troubleshooter.py"
+"${HOME}/.local/bin/uv" run "${DIAG_TOOLS_DIR}/Network/network_troubleshooter.py"
 read -n 1 -s -r -p "Press any key to close..."
 EOF
 chmod +x "${DIAG_TOOLS_DIR}/run_troubleshooter.sh"
