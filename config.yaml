@@ -4,21 +4,14 @@ core:
   repo_name: "mac-setup"
   state_file: "~/.mac-setup-state.json"
   log_dir: "~/Library/Logs/mac-setup"
-  brew_prefix: "/opt/homebrew"
 
 features:
-  homebrew: true
   macos_defaults: true
   zsh_setup: true
   python_env: true
   file_cleanup: true
   net_monitor: true
   diag_tools: true
-
-brew_force_install:
-  - "pyenv"
-  - "node"
-  - "coreutils"
 
 app_urls:
   vscode: "https://update.code.visualstudio.com/latest/darwin-arm64/stable"

@@ -11,7 +11,7 @@ ZSH_THEME="duellj"
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
-plugins=(git python node docker brew)
+plugins=(git node docker)
 
 # Initialize Oh My Zsh
 source "$ZSH/oh-my-zsh.sh"
@@ -26,14 +26,9 @@ if [[ -f "$HOME/.oh-my-zsh/custom/custom_aliases.zsh" ]]; then
     source "$HOME/.oh-my-zsh/custom/custom_aliases.zsh"
 fi
 
-# pyenv initialization
-if command -v pyenv >/dev/null 2>&1; then
-    export PYENV_ROOT="$HOME/.pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init -)"
-fi
+# uv — Python toolchain
+export PATH="$HOME/.local/bin:$PATH"
 
-# Load Homebrew shellenv if brew is in the standard Apple Silicon path
-if [[ -f /opt/homebrew/bin/brew ]]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-fi
+# volta — Node.js version manager
+export VOLTA_HOME="$HOME/.volta"
+export PATH="$VOLTA_HOME/bin:$PATH"

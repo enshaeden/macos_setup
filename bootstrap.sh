@@ -23,7 +23,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# 1. Xcode Command Line Tools
+# 1. Xcode Command Line Tools (provides git, clang, system headers)
 if ! xcode-select -p >/dev/null 2>&1; then
   log "Installing Xcode Command Line Tools..."
   xcode-select --install
@@ -33,23 +33,7 @@ else
   log "Xcode Command Line Tools already installed."
 fi
 
-# 2. Git Check
-if ! command -v git >/dev/null 2>&1; then
-  log "Git not found. Installing via Homebrew..."
-  # If brew isn't there, we'll install it next. This is a bit of a chicken-and-egg, 
-  # but xcode-select usually provides a shim for git.
-fi
-
-# 3. Homebrew
-if ! command -v brew >/dev/null 2>&1; then
-  log "Installing Homebrew..."
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  eval "$(/opt/homebrew/bin/brew shellenv)"
-else
-  log "Homebrew already installed."
-fi
-
-# 4. Clone Repository
+# 2. Clone Repository
 if [[ "${REPO_URL}" == *"youruser"* ]]; then
   log "WARNING: REPO_URL is still set to placeholder. Attempting to use current directory if applicable..."
   if [ ! -f "macos_setup.sh" ]; then
@@ -69,7 +53,7 @@ else
   fi
 fi
 
-# 5. Run Orchestrator
+# 3. Run Orchestrator
 log "Starting the orchestrator..."
 chmod +x macos_setup.sh
 ./macos_setup.sh
