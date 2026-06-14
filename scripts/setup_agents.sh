@@ -14,7 +14,7 @@ sudo mkdir -p /usr/local/bin
 sudo cp "${SCRIPT_DIR}/scripts/file_cleanup.py" "${CLEANUP_SCRIPT_DEST}"
 sudo chmod +x "${CLEANUP_SCRIPT_DEST}"
 
-uv_bin="${HOME}/.local/bin/uv"
+uv_bin="$(command -v uv 2>/dev/null || echo "${HOME}/.local/bin/uv")"
 
 # Cleanup Agent
 cat > "${CLEANUP_PLIST}" <<EOF

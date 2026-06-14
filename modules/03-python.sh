@@ -10,6 +10,13 @@ fi
 log_info "Installing latest Python via uv..."
 uv python install
 
+log_info "Ensuring PyYAML available to system python3..."
+if command -v python3 >/dev/null 2>&1; then
+  python3 -m pip install --user PyYAML >/dev/null 2>&1 || true
+else
+  log_warn "python3 not found; skipping PyYAML install"
+fi
+
 log_info "Setting up LaunchAgents..."
 zsh "${SCRIPT_DIR}/scripts/setup_agents.sh"
 

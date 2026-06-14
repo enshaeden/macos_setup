@@ -2,7 +2,7 @@
 # This file is meant to be placed in ~/.oh-my-zsh/custom/
 
 # Theme and Plugins (if not already set in main .zshrc)
-# ZSH_THEME="duellj"
+ZSH_THEME="duellj"
 # plugins=(git python)
 
 # Preferred editor
