@@ -36,7 +36,7 @@ cleanup:
     dest: "~/Pictures/Screenshots"
 
 monitoring:
-  target: "1.1.1.1"
+  target: "8.8.8.8"
   interval_seconds: 300
   thresholds:
     packet_loss_percent: 10

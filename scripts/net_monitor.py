@@ -36,7 +36,7 @@ def show_notification(title, message):
 def check_network(target):
     try:
         result = subprocess.run(
-            ["ping", "-c", "5", "-q", target],
+            ["ping", "-c", "10", "-q", target],
             capture_output=True,
             text=True,
             timeout=10
@@ -65,7 +65,7 @@ def main():
             time.sleep(60)
             continue
 
-        target = mon_config.get("target", "1.1.1.1")
+        target = mon_config.get("target", "8.8.8.8")
         loss_threshold = mon_config.get("thresholds", {}).get("packet_loss_percent", 10)
         latency_threshold = mon_config.get("thresholds", {}).get("latency_ms", 150)
         interval = mon_config.get("interval_seconds", 300)
