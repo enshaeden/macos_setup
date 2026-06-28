@@ -1,4 +1,5 @@
 #!/bin/zsh
+set -euo pipefail
 # Extracted logic for setting up LaunchAgents
 source "${SCRIPT_DIR}/scripts/lib/logger.sh"
 
@@ -14,7 +15,11 @@ sudo mkdir -p /usr/local/bin
 sudo cp "${SCRIPT_DIR}/scripts/file_cleanup.py" "${CLEANUP_SCRIPT_DEST}"
 sudo chmod +x "${CLEANUP_SCRIPT_DEST}"
 
-uv_bin="$(command -v uv 2>/dev/null || echo "${HOME}/.local/bin/uv")"
+uv_bin="$(command -v uv 2>/dev/null || true)"
+if [[ -z "${uv_bin}" ]]; then
+  log_error "uv is not installed or not on PATH."
+  exit 1
+fi
 
 # Cleanup Agent
 cat > "${CLEANUP_PLIST}" <<EOF

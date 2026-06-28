@@ -18,8 +18,8 @@ alias ohmyzsh="nano ~/.oh-my-zsh"
 # Network & System
 alias pingwtf='ping 8.8.8.8 -c' # Usage: pingwtf 10
 alias restart='sudo shutdown -r now'
-alias cleanup='python3 /usr/local/bin/file_cleanup.py'
-alias netdiag='python3 ~/Diagnostic\ Tools/Network/network_troubleshooter.py'
+alias cleanup='uv run /usr/local/bin/file_cleanup.py'
+alias netdiag='uv run "$HOME/Diagnostic Tools/Network/network_troubleshooter.py"'
 
 # Information helper
 ii () {

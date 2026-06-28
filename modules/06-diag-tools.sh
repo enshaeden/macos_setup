@@ -14,8 +14,13 @@ cp "${SCRIPT_DIR}/scripts/network_troubleshooter.py" "${DIAG_TOOLS_DIR}/Network/
 
 cat > "${DIAG_TOOLS_DIR}/run_troubleshooter.sh" <<EOF
 #!/bin/bash
-uv_bin="$(command -v uv 2>/dev/null || echo "${HOME}/.local/bin/uv")"
-"${uv_bin}" run "${DIAG_TOOLS_DIR}/Network/network_troubleshooter.py"
+set -euo pipefail
+uv_bin="\$(command -v uv 2>/dev/null || true)"
+if [[ -z "\${uv_bin}" ]]; then
+  echo "Error: uv is not installed or not on PATH."
+  exit 1
+fi
+"\${uv_bin}" run "${DIAG_TOOLS_DIR}/Network/network_troubleshooter.py"
 read -n 1 -s -r -p "Press any key to close..."
 EOF
 chmod +x "${DIAG_TOOLS_DIR}/run_troubleshooter.sh"

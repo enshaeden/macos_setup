@@ -6,6 +6,17 @@ import os
 import socket
 import re
 import json
+import ssl
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
+
+def _int_env(name, default):
+    try:
+        return int(os.environ.get(name, str(default)))
+    except ValueError:
+        return default
+
+DEFAULT_DNS_LATENCY_THRESHOLD_MS = _int_env("MAC_SETUP_DNS_LATENCY_MS", 500)
 
 def run_command(command_list):
     """Runs a command, captures output, returns output or error."""
@@ -20,6 +31,45 @@ def run_command(command_list):
         return "ERROR: Command not found. Is it installed?"
     except Exception as e:
         return f"ERROR: {e}"
+
+def probe_url(url, timeout=10):
+    """Checks HTTP or HTTPS reachability and returns structured evidence."""
+    request = Request(url, method="HEAD")
+    context = ssl.create_default_context()
+
+    try:
+        with urlopen(request, timeout=timeout, context=context) as response:
+            return {
+                "reachable": True,
+                "status_code": getattr(response, "status", None),
+                "error": None,
+            }
+    except HTTPError as e:
+        return {
+            "reachable": True,
+            "status_code": e.code,
+            "error": None,
+        }
+    except (URLError, ssl.SSLError, TimeoutError, OSError) as e:
+        return {
+            "reachable": False,
+            "status_code": None,
+            "error": str(e),
+        }
+    except Exception as e:
+        return {
+            "reachable": False,
+            "status_code": None,
+            "error": str(e),
+        }
+
+def check_http_reachability(target="example.com", timeout=10):
+    """Checks HTTP and HTTPS reachability separately."""
+    print(f"Checking HTTP reachability for {target}...")
+    return {
+        "http": probe_url(f"http://{target}", timeout=timeout),
+        "https": probe_url(f"https://{target}", timeout=timeout),
+    }
 
 def get_default_gateway():
     """Gets default gateway in a system-agnostic way."""
@@ -124,14 +174,21 @@ def dns_lookup(target):
     print(f"Performing DNS lookup for {target}...")
     return run_command(["nslookup", target]) or run_command(["dig", "+short", target])
 
-def dns_health_check(targets=["8.8.8.8", "1.1.1.1", "9.9.9.9"]):
+def dns_health_check(targets=None):
     """Compares DNS resolution times using multiple DNS providers."""
     print("Checking DNS resolution times...")
+    if targets is None:
+        targets = ["8.8.8.8", "1.1.1.1", "9.9.9.9"]
     results = {}
     for dns in targets:
-        start = time.time()
-        run_command(["nslookup", "example.com", dns])
-        results[dns] = round((time.time() - start) * 1000, 2)
+        start = time.monotonic()
+        output = run_command(["nslookup", "example.com", dns])
+        latency_ms = round((time.monotonic() - start) * 1000, 2)
+        results[dns] = {
+            "reachable": not output.startswith("ERROR"),
+            "latency_ms": latency_ms,
+            "output": output,
+        }
     return results
 
 def netstat_connections():
@@ -229,6 +286,7 @@ def main():
         "default_gateway": get_default_gateway(),
         "vpn_check": check_vpn(),
         "local_ip": get_local_ip(),
+        "http_reachability": check_http_reachability(),
         "connectivity_test": test_connectivity(target),
         "ping_test": ping_test(target, ping_count),
         "latency_test": measure_latency(target),
@@ -343,16 +401,53 @@ def evaluate_network_logs(file_path):
             else:
                 print("DNS Lookup: DNS lookup succeeded.\n")
 
+        if "http_reachability" in data:
+            reachability = data["http_reachability"]
+            http = reachability.get("http", {})
+            https = reachability.get("https", {})
+
+            if http.get("reachable"):
+                print(
+                    "HTTP Reachability: HTTP probe succeeded"
+                    + (f" with status {http.get('status_code')}." if http.get("status_code") else ".")
+                    + "\n"
+                )
+            else:
+                print(f"HTTP Reachability: HTTP probe failed ({http.get('error', 'unknown error')}).\n")
+                issues.append("HTTP reachability failure")
+
+            if https.get("reachable"):
+                print(
+                    "HTTPS Reachability: HTTPS probe succeeded"
+                    + (f" with status {https.get('status_code')}." if https.get("status_code") else ".")
+                    + "\n"
+                )
+            else:
+                print(f"HTTPS Reachability: HTTPS probe failed ({https.get('error', 'unknown error')}).\n")
+                issues.append("HTTPS reachability failure")
+                if http.get("reachable"):
+                    print(
+                        "Warning: plain HTTP works but HTTPS fails. "
+                        "TLS inspection, certificate, or proxy issue likely.\n"
+                    )
+                else:
+                    issues.append("HTTP reachability failure")
+
         if "dns_health_check" in data:
             dns_results = []
-            for server, latency in data["dns_health_check"].items():
+            for server, details in data["dns_health_check"].items():
+                if isinstance(details, dict):
+                    latency = details.get("latency_ms", "N/A")
+                    reachable = details.get("reachable", False)
+                else:
+                    latency = details
+                    reachable = False
                 dns_results.append(f"{server}: {latency} ms")
+                if not reachable:
+                    issues.append(f"DNS lookup failure: {server}")
+                elif isinstance(latency, (int, float)) and latency > DEFAULT_DNS_LATENCY_THRESHOLD_MS:
+                    issues.append(f"High DNS latency: {server}")
             print(f"DNS Health Check: {', '.join(dns_results)}.\n")
-            for lat in data["dns_health_check"].values():
-                if float(lat) > 50:
-                    issues.append("High DNS latency")
-                    break
-
         if "netstat_connections" in data:
             output = data["netstat_connections"]
             connections = re.findall(r"(\S+\.\d+)\s+(\S+\.\d+)\s+(\S+)", output)
@@ -419,14 +514,18 @@ def evaluate_network_logs(file_path):
         if not issues:
             print("Network appears healthy with no major issues detected.")
         else:
-            if "Connectivity test failure" in issues or "Ping test failed" in issues:
+            if "HTTP reachability failure" in issues or "HTTPS reachability failure" in issues:
+                cause = "Secure web traffic or trust-path issues."
+            elif "Connectivity test failure" in issues or "Ping test failed" in issues:
                 cause = "Possible connectivity or firewall issues."
             elif "Packet loss detected" in issues or "High latency" in issues:
                 cause = "Network congestion or instability."
+            elif any(issue.startswith("High DNS latency") for issue in issues):
+                cause = "Resolver slowness or upstream DNS bottleneck."
+            elif any(issue.startswith("DNS lookup failure") for issue in issues):
+                cause = "DNS server configuration or reachability issues."
             elif "Traceroute failure" in issues or "Traceroute incomplete" in issues:
                 cause = "Routing issues or firewall restrictions."
-            elif "DNS lookup failure" in issues or "High DNS latency" in issues:
-                cause = "DNS server configuration issues."
             else:
                 cause = "Mixed network issues."
             print(f"Issues detected: {', '.join(issues)}. {cause}")

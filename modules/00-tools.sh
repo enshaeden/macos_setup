@@ -10,20 +10,27 @@ fi
 ARCH="$(uname -m)"
 BIN_DIR="${HOME}/.local/bin"
 mkdir -p "${BIN_DIR}"
+export PATH="${BIN_DIR}:${PATH}"
 
 # uv — Python toolchain manager
 if ! command -v uv >/dev/null 2>&1; then
   log_info "Installing uv..."
   curl -LsSf https://astral.sh/uv/install.sh | sh
-  export PATH="${HOME}/.local/bin:${PATH}"
+  hash -r 2>/dev/null || true
 else
   log_info "uv already installed."
+fi
+export UV_BIN="$(command -v uv 2>/dev/null || true)"
+if [[ -z "${UV_BIN}" ]]; then
+  log_error "uv was not found after installation or PATH resolution."
+  return 1
 fi
 
 # volta — Node.js version manager
 if ! command -v volta >/dev/null 2>&1; then
   log_info "Installing volta..."
   curl https://get.volta.sh | bash -s -- --skip-setup
+  hash -r 2>/dev/null || true
   export VOLTA_HOME="${HOME}/.volta"
   export PATH="${VOLTA_HOME}/bin:${PATH}"
   volta install node
@@ -58,8 +65,6 @@ if ! command -v yq >/dev/null 2>&1; then
 else
   log_info "yq already installed."
 fi
-
-export PATH="${BIN_DIR}:${PATH}"
 
 mark_completed "tools"
 log_success "Tools module complete."
