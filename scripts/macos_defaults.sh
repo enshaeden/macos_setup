@@ -22,9 +22,12 @@ log_info "Disabling system-wide window animations..."
 defaults write NSGlobalDomain NSAutomaticWindowAnimationsEnabled -bool false
 
 # 4. Keyboard repeat rate
-log_info "Setting fast keyboard repeat rate..."
-defaults write NSGlobalDomain KeyRepeat -int 1
-defaults write NSGlobalDomain InitialKeyRepeat -int 10
+key_repeat="$(yq -r '.ui_tweaks.keyboard_repeat.key_repeat // 2' "${SCRIPT_DIR}/config.yaml")"
+initial_key_repeat="$(yq -r '.ui_tweaks.keyboard_repeat.initial_key_repeat // 12' "${SCRIPT_DIR}/config.yaml")"
+
+log_info "Setting keyboard repeat rate..."
+defaults write NSGlobalDomain KeyRepeat -int "${key_repeat}"
+defaults write NSGlobalDomain InitialKeyRepeat -int "${initial_key_repeat}"
 
 # Restart affected apps
 for app in "Dock" "Finder" "SystemUIServer"; do

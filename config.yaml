@@ -46,3 +46,6 @@ monitoring:
 ui_tweaks:
   dock_speed: true
   finder_animations: false
+  keyboard_repeat:
+    key_repeat: 2
+    initial_key_repeat: 12
